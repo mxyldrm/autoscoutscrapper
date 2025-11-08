@@ -1,62 +1,227 @@
-# AutoScout Car Listings Bot
+# AutoScout24 Scraper
 
-This project is an educational bot designed to scrape and monitor new car listings from AutoScout24. It extracts information such as make, model, price, transmission type, fuel type, and other key details about the cars, then stores this data in a database for further use.
-
-**Important:** This project is strictly for educational purposes. The responsibility for how this code is used lies entirely with the user. The authors of this project do not assume any liability for misuse or any damages arising from the use of this code.
+A professional, modular web scraper for monitoring new car listings from [AutoScout24](https://www.autoscout24.de).
 
 ## Features
 
-- Fetches and processes new car listings from [AutoScout24](https://www.autoscout24.de).
-- Extracts key details such as price, make, model, year, fuel type, transmission, CO2 emissions, and more.
-- Saves car details into a database.
-- Deletes outdated car listings automatically.
+- **Modular Architecture**: Clean separation of concerns with dedicated modules for browser automation, scraping, database operations, and notifications
+- **Automated Monitoring**: Continuously monitors for new car listings
+- **Smart Data Extraction**: Extracts comprehensive car details including make, model, price, transmission, and more
+- **Database Storage**: SQLite database with automatic cleanup of old listings
+- **Telegram Notifications**: Optional real-time notifications for new listings and errors
+- **User-Agent Rotation**: Random User-Agent headers to avoid detection
+- **Error Handling**: Robust error handling with logging and notifications
+- **Configurable**: Easy configuration via environment variables
+
+## Project Structure
+
+```
+autoscoutscrapper/
+├── src/
+│   ├── __init__.py       # Package initialization
+│   ├── config.py         # Configuration settings
+│   ├── browser.py        # Playwright browser automation
+│   ├── scraper.py        # Scraping logic
+│   ├── database.py       # Database operations
+│   ├── notifier.py       # Telegram notifications
+│   └── utils.py          # Utility functions and logging
+├── main.py               # Entry point
+├── requirements.txt      # Python dependencies
+├── .env.example         # Environment variables template
+├── .gitignore           # Git ignore rules
+└── README.md            # This file
+```
 
 ## Prerequisites
 
-- Python 3.8+
-- Required Python libraries (see `requirements.txt`)
+- Python 3.8 or higher
+- pip (Python package manager)
+- Internet connection
 
-To install the necessary dependencies, you can run:
+## Installation
 
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/mxyldrm/autoscoutscrapper.git
+   cd autoscoutscrapper
+   ```
+
+2. **Create a virtual environment** (recommended):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Install Playwright browsers**:
+   ```bash
+   playwright install chromium
+   ```
+
+5. **Configure environment variables**:
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` and add your Telegram credentials (optional):
+   ```env
+   TELEGRAM_API_KEY=your_bot_token_here
+   TELEGRAM_CHAT_ID=your_chat_id_here
+   ```
+
+## Configuration
+
+All configuration is handled in `src/config.py` and can be overridden with environment variables:
+
+### Core Settings
+- `SCRAPE_INTERVAL`: Time between scraping cycles (default: 60 seconds)
+- `PAGES_TO_SCRAPE`: List of pages to scrape (default: [1, 2])
+- `BROWSER_HEADLESS`: Run browser in headless mode (default: True)
+
+### Telegram Notifications (Optional)
+To enable Telegram notifications:
+1. Create a bot via [@BotFather](https://t.me/botfather)
+2. Get your chat ID from [@userinfobot](https://t.me/userinfobot)
+3. Set `TELEGRAM_API_KEY` and `TELEGRAM_CHAT_ID` in `.env`
+
+### Database
+- Default: SQLite database (`autoscout.db`)
+- Old listings are automatically deleted after 7 days
+- Supports PostgreSQL (set `DATABASE_URL` in `.env`)
+
+## Usage
+
+Run the scraper:
 ```bash
-pip install -r requirements.txt
+python main.py
+```
 
+The scraper will:
+1. Open AutoScout24 search page
+2. Find the JSON API endpoint
+3. Scrape car listings from multiple pages
+4. Store new listings in the database
+5. Send Telegram notifications for new cars (if configured)
+6. Clean up old listings
+7. Wait for the configured interval and repeat
 
-Usage
-Clone this repository:
-bash
+### Stopping the Scraper
+Press `Ctrl+C` to gracefully stop the scraper.
 
-git clone https://github.com/mxyldrm/autoscout.git
-cd autoscout-bot
-Create a .env file to store your environment variables such as your Telegram API key and chat ID for error notifications:
-bash
+## Module Documentation
 
-TELEGRAM_API_KEY=your_telegram_api_key
-TELEGRAM_CHAT_ID=your_telegram_chat_id
-Run the bot:
-bash
+### `src/config.py`
+Contains all configuration settings including URLs, timeouts, User-Agents, and environment variables.
 
-python autoscout.py
-The bot will continuously scrape new car listings and store them in the database while removing old entries.
+### `src/browser.py`
+Handles browser automation using Playwright to find the JSON API endpoint by monitoring network requests.
 
-Configuration
-You can adjust the bot settings in the config.py file. This file includes key information such as:
+### `src/scraper.py`
+Main scraping logic that fetches and parses car listings from the JSON API.
 
-User-Agent: Different User-Agent headers for requests.
-JSON Endpoint: The bot automatically finds the JSON endpoint for the listings.
-Disclaimer
-This project is provided as is for educational purposes. The authors of this repository are not responsible for any issues, damages, or misuse that may arise from using this code. Use at your own risk.
+### `src/database.py`
+Manages SQLite database operations including inserting, updating, and deleting car listings.
 
-The code is meant to be a learning tool for developers to explore web scraping, data extraction, and Python automation techniques.
+### `src/notifier.py`
+Sends Telegram notifications for new listings and errors.
 
-License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+### `src/utils.py`
+Utility functions for logging, price formatting, and feature extraction.
 
+## Logging
 
+Logs are written to both:
+- Console (stdout)
+- File: `autoscout_scraper.log`
 
-### Key Changes:
-- **English Translation:** I translated all messages to English.
-- **Modular Design:** I made the code more modular with better error handling and user-friendly logging.
-- **README File:** Added a professional `README.md` file with instructions, disclaimer, and setup details.
+Log levels can be configured via `LOG_LEVEL` environment variable.
 
-You can now publish this code on GitHub with confidence! Let me know if you need any other adjustments.
+## Development
+
+### Running Tests
+```bash
+# Install dev dependencies
+pip install pytest
+
+# Run tests (if implemented)
+pytest
+```
+
+### Code Formatting
+```bash
+# Install black
+pip install black
+
+# Format code
+black src/ main.py
+```
+
+## Troubleshooting
+
+### Browser Issues
+If Playwright fails to launch:
+```bash
+playwright install chromium
+```
+
+### Database Issues
+If database errors occur, delete the database file and restart:
+```bash
+rm autoscout.db
+python main.py
+```
+
+### Network Issues
+If scraping fails consistently:
+- Check your internet connection
+- Verify the AutoScout24 website is accessible
+- Check if the website structure has changed
+
+## Disclaimer
+
+**IMPORTANT**: This project is strictly for **educational purposes only**.
+
+- Web scraping may violate the terms of service of websites
+- Users are solely responsible for how they use this code
+- The authors assume no liability for misuse or damages
+- Always respect robots.txt and website terms of service
+- Use reasonable scraping intervals to avoid overloading servers
+
+## Legal Notice
+
+This tool is provided "as is" without warranty of any kind. Use at your own risk. Always comply with:
+- Website terms of service
+- Local laws and regulations regarding web scraping
+- Data protection regulations (GDPR, etc.)
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Author
+
+**mxyldrm**
+
+## Acknowledgments
+
+- Built with [Playwright](https://playwright.dev/) for browser automation
+- Uses [Requests](https://requests.readthedocs.io/) for HTTP requests
+- Database management with SQLite
+
+---
+
+**Remember**: This is an educational project. Always use web scraping responsibly and ethically.
