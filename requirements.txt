@@ -1,0 +1,14 @@
+# Core dependencies
+requests>=2.31.0
+playwright>=1.40.0
+python-dotenv>=1.0.0
+
+# Optional: for advanced database support
+# sqlalchemy>=2.0.0
+# psycopg2-binary>=2.9.0  # For PostgreSQL
+
+# Development dependencies (optional)
+# pytest>=7.4.0
+# black>=23.0.0
+# flake8>=6.0.0
+# mypy>=1.0.0
